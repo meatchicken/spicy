@@ -1,0 +1,38 @@
+# @TEST-EXEC: spicy-build -d -o test.hlto %INPUT
+
+# @TEST-EXEC: echo "Parsing X w/o any skipping" >> output
+# @TEST-EXEC: printf 'AB' | spicy-driver -p Test::X test.hlto >> output
+
+# @TEST-EXEC: echo "Parsing Y w/o any skipping" >> output
+# @TEST-EXEC: printf 'AB' | spicy-driver -p Test::Y test.hlto >> output
+
+# @TEST-EXEC: echo "Parsing X w/ content like skip-post" >> output
+# @TEST-EXEC: printf '01' | spicy-driver -p Test::X test.hlto >> output
+# @TEST-EXEC: printf '0011' | spicy-driver -p Test::X test.hlto >> output
+
+# @TEST-EXEC: echo "Parsing X w/o any skipping since skip-pre and -post in the wrong place" >> output
+# @TEST-EXEC: printf '1AB0' | spicy-driver -p Test::X test.hlto >> output
+# @TEST-EXEC: echo "Parsing Y w/o any skipping since skip-pre and -post in the wrong place" >> output
+# FIXME(bbannier): This is currently broken.
+# @_TEST-EXEC: printf '1AB0' | spicy-driver -p Test::Y test.hlto >> output
+
+# @TEST-EXEC: echo "Parsing Y w/ skipping pre and post" >> output
+# @TEST-EXEC: printf '0AB1' | spicy-driver -p Test::Y test.hlto >> output
+
+# @TEST-EXEC: btest-diff output
+
+module Test;
+
+%skip-pre = /0*/;
+%skip-post = /1*/;
+%skip = /2*/;
+
+public type X = unit {
+    x: bytes &size=1;
+    on %done { print "X", self; }
+};
+
+public type Y = unit {
+    xs: X[] &eod;
+    on %done { print "Y", self; }
+};

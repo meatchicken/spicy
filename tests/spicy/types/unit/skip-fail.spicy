@@ -1,0 +1,14 @@
+# @TEST-EXEC-FAIL: spicyc -p %INPUT >> output 2>&1
+# @TEST-EXEC: btest-diff output
+
+module Test;
+
+%skip;
+%skip-pre=2;
+%skip-post=b"abc";
+
+type X = unit {
+    %skip;
+    %skip-pre=2;
+    %skip-post=b"abc";
+};
